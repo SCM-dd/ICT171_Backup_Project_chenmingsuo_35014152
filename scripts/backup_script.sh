@@ -1,9 +1,9 @@
 #！/bin/bash
 set -x 
 #Configuration
-SOURCE_DIR="$HOME/Documents/ICT171_Backup_Project/test_data"  # Test data directory
-BACKUP_DIR="$HOME/backups"    # Local backup directory
-CLOUD_IP="13.237.110.154"                                    # cloud server IP
+SOURCE_DIR="/var/www/html"   # Test data directory
+BACKUP_DIR="/home/deploy/backups" # Local backup directory
+CLOUD_IP="13 .237.110.154"                                   # cloud server IP
 SSH_KEY="/home/deploy/.ssh/ec2-ubuntu-key"                         # SSH key path
 CLOUD_USER="deploy"                     
 LOG_FILE="$BACKUP_DIR/backup.log"

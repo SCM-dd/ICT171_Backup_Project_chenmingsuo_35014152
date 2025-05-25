@@ -1,7 +1,0 @@
-allow 22/tcp (SSH)  
-    allow the manager can renote login the serve 
-allow 80/tcp (HTTP)
-    allow the web serve such as apache, nginx 
-
-allow 443/tcp (HTTPS)
-    more security 
