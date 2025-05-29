@@ -1,43 +1,38 @@
-#！/bin/bash
-set -x 
-#Configuration
-SOURCE_DIR="/var/www/html"   # Test data directory
-BACKUP_DIR="/home/deploy/backups" # Local backup directory
-CLOUD_IP="13 .237.110.154"                                   # cloud server IP
-SSH_KEY="/home/deploy/.ssh/ec2-ubuntu-key"                         # SSH key path
-CLOUD_USER="deploy"                     
-LOG_FILE="$BACKUP_DIR/backup.log"
-ERROR_LOG="$BACKUP_DIR/error.log"
+#!/bin/bash
+set -x
+# Configuration
+SOURCE_DIR="/var/www/html"  # 修正：使用单等号 =
+BACKUP_DIR="$HOME/Documents/ICT171_Backup_Project/backups"  # 本地备份目录
+LOG_FILE="$BACKUP_DIR/backup.log"  # 修正：使用变量
+ERROR_LOG="$BACKUP_DIR/error.log"  # 修正：使用变量
 
-# Create a backup directory
-mkdir -p "$BACKUP_DIR" || { echo "[$(date)] ERROR: Failed to create backup directory" >> "$ERROR_LOG"; exit 1; }
+# 创建备份目录
+mkdir -p "$BACKUP_DIR"
 
-# Get the current timestamp
-now=$(date +%Y%m%d%H%M%S)
-ZIP_FILE="$BACKUP_DIR/${now}_backup.zip"
-
-# Check if source directory exists and is not empty
+# 检查源目录是否存在
 if [ ! -d "$SOURCE_DIR" ]; then
-    echo "[$(date)] ERROR: Source directory $SOURCE_DIR does not exist" >> "$ERROR_LOG"
+    echo "[$(date)] ERROR: can not find file: $SOURCE_DIR" >> "$ERROR_LOG"  # 修正：使用变量
     exit 1
 fi
 
-# Fix: Directly zip the directory instead of its contents
-echo "[$(date)] START TO BACKUP" >> "$LOG_FILE"
-zip -rq "$ZIP_FILE" "$SOURCE_DIR" 2>> "$ERROR_LOG"
-
-# Check if backup was successful
-if [ $? -eq 0 ]; then
-    echo "[$(date)] SUCCESSFUL: $ZIP_FILE" >> "$LOG_FILE"
-    
-    # Upload to cloud server
-    scp -i "$SSH_KEY" "$ZIP_FILE" "$CLOUD_USER@$CLOUD_IP:/home/$CLOUD_USER/"
-    
-    if [ $? -eq 0 ]; then
-        echo "[$(date)] UPLOAD SUCCESSFUL" >> "$LOG_FILE"
-    else
-        echo "[$(date)] UPLOAD FAILED: CHECK SSH CONFIG" >> "$ERROR_LOG"
-    fi
-else
-    echo "[$(date)] BACKUP FAILED: CHECK $ERROR_LOG" >> "$LOG_FILE"
+# 检查源目录是否为空
+if [ -z "$(ls -A "$SOURCE_DIR")" ]; then
+    echo "[$(date)] ERROR: The source directory is empty: $SOURCE_DIR" >> "$ERROR_LOG"  # 修正：使用变量
+    exit 1
 fi
+
+# 获取当前时间戳
+now=$(date +%Y%m%d%H%M%S)
+ZIP_FILE="$BACKUP_DIR/${now}_backup.zip"
+
+# 执行备份压缩
+echo "[$(date)] START TO BACKUP" >> "$LOG_FILE"  # 修正：使用变量
+zip -rq "$ZIP_FILE" "$SOURCE_DIR" 2>> "$ERROR_LOG"  # 修正：使用变量
+
+# 检查备份是否成功
+if [ $? -eq 0 ]; then
+    echo "[$(date)] SUCCESSFUL: Backup saved to $ZIP_FILE" >> "$LOG_FILE"  # 修正：使用变量
+else
+    echo "[$(date)] ZIP COMMAND FAILED: CHECK $ERROR_LOG" >> "$LOG_FILE"  # 修正：使用变量
+fi
+set +x
